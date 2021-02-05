@@ -7,9 +7,13 @@ import {
   TextInput,
   ScrollView,
   FlatList,
-  TouchableOpacity,
+  TouchableWithoutFeedback,
+  Keyboard,
+  Alert,
 } from "react-native";
+import AddTodo from "./AddTodo";
 import Header from "./Header";
+import TodoItems from "./TodoItems";
 
 export default function App() {
   const [items, setItems] = useState([
@@ -19,40 +23,61 @@ export default function App() {
     { name: "work @ google", id: "4" },
     { name: "enjoy every single minute", id: "5" },
     { name: "dreams future", id: "6" },
+    { name: "dreams BIG", id: "7" },
   ]);
-  // const handerChange = (id) => {
-  //   console.log(id);
-  //   setItems(items.filter((item) => item.id != id));
-  // };
+  const pressHandler = (id) => {
+    console.log(id);
+    setItems(items.filter((item) => item.id != id));
+  };
+
+  const submitHandler = (input) => {
+    if (input.length >= 4) {
+      setItems((prevTodo) => {
+        return [{ name: input, id: Math.random().toString() }, ...prevTodo];
+      });
+    } else {
+      Alert.alert("OOPS", "Todo must be greater than 4 char", [
+        { text: "understood" },
+      ]);
+    }
+  };
   return (
-    <View style={styles.container}>
-      <View style={styles.content}>
-        <View style={styles.list}>
-          <FlatList
-            data={items}
-            keyExtractor={(items) => items.id}
-            renderItem={({ item }) => <Text>{item.name}</Text>}
-          />
+    <TouchableWithoutFeedback
+      onPress={() => {
+        Keyboard.dismiss();
+      }}
+    >
+      <View style={styles.container}>
+        <Header />
+        <View style={styles.content}>
+          <AddTodo submitHandler={submitHandler} />
+          <View style={styles.list}>
+            <FlatList
+              data={items}
+              keyExtractor={(items) => items.id}
+              renderItem={({ item }) => (
+                <TodoItems item={item} pressHandler={pressHandler} />
+              )}
+            />
+          </View>
         </View>
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // alignItems: "center",
-    // justifyContent: "center",
-    // backgroundColor: "white",
+    backgroundColor: "#fff",
   },
-  header: {
-    fontWeight: "bold",
-    alignItems: "center",
-    justifyContent: "center",
-  },
+
   list: {
-    margin: 20,
-    padding: 30,
+    flex: 1,
+    marginTop: 40,
+  },
+  content: {
+    padding: 40,
+    flex: 1,
   },
 });
